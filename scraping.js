@@ -20,7 +20,7 @@ const scraping = async (amount) => {
         },
         tecnoblog: {
             url: "https://tecnoblog.net",
-            selector: ".texts"
+            selector: ".grid4"
         }
     };
 
@@ -34,10 +34,17 @@ const scraping = async (amount) => {
             const reports = await page.$$eval(config.selector, (elements, site, amount) => {
                 const limitedElements = elements.slice(0, Number(amount));
                 return limitedElements.map(el => {
-                    const textContent = el.textContent.trim();
+                    let textContent = ''; 
+
+                    if (site !== 'tecnoblog') {
+                        textContent = el.textContent.trim();
+                    } else {
+                        textContent = el.querySelector('h2')?.textContent.trim() || '';
+                    }
+                    
                     const urlElement = el.querySelector('a');
                     const url = urlElement ? urlElement.href : null;
-
+            
                     return { title: textContent, url };
                 }).filter(Boolean);
             }, site, amount);
